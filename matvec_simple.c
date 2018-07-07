@@ -4,6 +4,8 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+
 void matvec_simple(int n, float vec_c[n],
                           const float *mat_a[n], const float vec_b[n])
 {
@@ -20,24 +22,23 @@ void matvec_simple(int n, float vec_c[n],
 // taken for a given number of iterations
 void test_mat_vec_mul_simple(int n, float vec_c[n],
                                const float *mat_a[n], const float vec_b[n], int iterations){
-    long long totalTime = 0;
+    double totalTime = 0;
     for(int i=0; i<iterations ;i++)
     {
-        struct timeval stop, start;
-        gettimeofday(&start, NULL);
+        clock_t start = clock();
         matvec_simple(n,vec_c,mat_a,vec_b);
-        gettimeofday(&stop, NULL);
-        totalTime += stop.tv_usec - start.tv_usec;
+        clock_t end = clock();
+        totalTime += (((double)(end-start))/CLOCKS_PER_SEC);
     }
     printf("FN: MAT_VEC_MUL_SIMPLE\n");
     printf("MAT_SIZE: [%d],[%d] \n",n,n);
     printf("VEC_SIZE: [%d],[1] \n",n);
     printf("TEST_ITERATIONS: %d \n",iterations);
-    printf("AVG_TIME: %f \n",(double)totalTime/(double)iterations);
+    printf("AVG_TIME: %f SEC \n",totalTime/iterations);
     printf("-----------------------------------------\n");
 }
 
-void test_all_mat_mul_simple(){
+void test_all_mat_vec_mul_simple(){
     for(int n=100; n<=1600 ;n*=2)
     {
         srand((unsigned int) n);

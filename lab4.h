@@ -13,6 +13,8 @@ void test_all_mat_mul_sse();*/
 
 void test_all_mat_mul_simple();
 
+void test_all_mat_vec_mul_simple();
+
 void test_all_mat_vec_mul_sse();
 
 void test_all_mat_mul_unrolled();

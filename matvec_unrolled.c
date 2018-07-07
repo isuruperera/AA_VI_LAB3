@@ -4,6 +4,8 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <bits/time.h>
+#include <time.h>
 
 void matvec_unrolled(int n, float vec_c[n],
                             float *mat_a[n], const float vec_b[n])
@@ -22,20 +24,19 @@ void matvec_unrolled(int n, float vec_c[n],
 
 void test_mat_vec_mul_unrolled(int n, float vec_c[n],
                                const float *mat_a[n], const float vec_b[n], int iterations){
-    long long totalTime = 0;
+    double totalTime = 0;
     for(int i=0; i<iterations ;i++)
     {
-        struct timeval stop, start;
-        gettimeofday(&start, NULL);
-        matvec_unrolled(n,vec_c,mat_a,vec_b);
-        gettimeofday(&stop, NULL);
-        totalTime += stop.tv_usec - start.tv_usec;
+        clock_t start = clock();
+        matvec_unrolled(n, vec_c, (float **) mat_a, vec_b);
+        clock_t end = clock();
+        totalTime += (((double)(end-start))/CLOCKS_PER_SEC);
     }
     printf("FN: MAT_VEC_MUL_UNROLLED\n");
     printf("MAT_SIZE: [%d],[%d] \n",n,n);
     printf("VEC_SIZE: [%d],[1] \n",n);
     printf("TEST_ITERATIONS: %d \n",iterations);
-    printf("AVG_TIME: %f \n",(double)totalTime/(double)iterations);
+    printf("AVG_TIME: %f \n",totalTime/iterations);
     printf("-----------------------------------------\n");
 }
 

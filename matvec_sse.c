@@ -4,7 +4,10 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <xmmintrin.h>
+#include <smmintrin.h>
+#include <bits/time.h>
+#include <time.h>
+
 void matvec_sse(int n, float vec_c[n],
                           const float *mat_a[n], const float vec_b[n])
 {
@@ -15,7 +18,7 @@ void matvec_sse(int n, float vec_c[n],
         for(int j=0;j<n;j++)
         {
             __m128 vector1 = _mm_set_ps(mat_a[i+0][j], mat_a[i+1][j], mat_a[i+2][j], mat_a[i+3][j]);
-            __m128 vector2 = _mm_set_ps(vec_b[j], vec_b[j], vec_b[j], vec_b[j]);
+            __m128 vector2 = _mm_set1_ps(vec_b[j]);
             __m128 result1 = _mm_mul_ps(vector1, vector2);
             _mm_store_ps(temp1,result1);
 
@@ -32,20 +35,20 @@ void matvec_sse(int n, float vec_c[n],
 // taken for a given number of iterations
 void test_mat_vec_mul_sse(int n, float vec_c[n],
                                const float *mat_a[n], const float vec_b[n], int iterations){
-    long long totalTime = 0;
+    double totalTime = 0;
     for(int i=0; i<iterations ;i++)
     {
-        struct timeval stop, start;
-        gettimeofday(&start, NULL);
+        clock_t start = clock();
         matvec_sse(n,vec_c,mat_a,vec_b);
-        gettimeofday(&stop, NULL);
-        totalTime += stop.tv_usec - start.tv_usec;
+        clock_t end = clock();
+        totalTime += (((double)(end-start))/CLOCKS_PER_SEC);
+
     }
     printf("FN: MAT_VEC_MUL_SSE\n");
     printf("MAT_SIZE: [%d],[%d] \n",n,n);
     printf("VEC_SIZE: [%d],[1] \n",n);
     printf("TEST_ITERATIONS: %d \n",iterations);
-    printf("AVG_TIME: %f \n",(double)totalTime/(double)iterations);
+    printf("AVG_TIME: %f \n",totalTime/iterations);
     printf("-----------------------------------------\n");
 }
 
