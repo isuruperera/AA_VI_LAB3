@@ -1,10 +1,7 @@
 #include <stdio.h>
-#include <sys/time.h>
-#include <stdlib.h>
-#include <time.h>
-#include "matvec_simple.h"
-#include "matvec_unrolled.h"
-#include "matvec_sse.h"
+
+#include "lab4.h"
+
 
 /* Print usage text */
 void usage(){
@@ -29,7 +26,7 @@ void usage(){
 int main() {
     test_all_mat_mul_simple();
     test_all_mat_mul_unrolled();
-    test_all_mat_mul_sse();
+    test_all_mat_vec_mul_sse();
     return 0;
 }
 

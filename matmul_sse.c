@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <xmmintrin.h>
-void matvec_sse(int n, float vec_c[n],
-                          const float *mat_a[n], const float vec_b[n])
+void matvec_sse(int n, float *mat_c[n],
+                          const float *mat_a[n], const float *mat_b[n])
 {
     float *temp1;
     temp1 = malloc(4* sizeof(float));
@@ -14,21 +14,13 @@ void matvec_sse(int n, float vec_c[n],
     {
         for(int j=0;j<n;j++)
         {
-            __m128 vector1 = _mm_set_ps(mat_a[i+0][j], mat_a[i+1][j], mat_a[i+2][j], mat_a[i+3][j]);
-            __m128 vector2 = _mm_set_ps(vec_b[j], vec_b[j], vec_b[j], vec_b[j]);
-            __m128 result1 = _mm_mul_ps(vector1, vector2);
-            _mm_store_ps(temp1,result1);
 
-            vec_c[i+0] += temp1[0];
-            vec_c[i+1] += temp1[1];
-            vec_c[i+2] += temp1[2];
-            vec_c[i+3] += temp1[3];
         }
     }
     free(temp1);
 }
 
-// Tests simple matrix vector multiplication, and returns the average time
+// Tests simple matrix matrix multiplication, and returns the average time
 // taken for a given number of iterations
 void test_mat_vec_mul_sse(int n, float vec_c[n],
                                const float *mat_a[n], const float vec_b[n], int iterations){

@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <xmmintrin.h>
-void matvec_sse(int n, float vec_c[n],
-                          const float *mat_a[n], const float vec_b[n])
+void matvec_simple(int n, float *mat_c[n],
+                          const float *mat_a[n], const float *mat_b[n])
 {
     float *temp1;
     temp1 = malloc(4* sizeof(float));
@@ -14,30 +14,25 @@ void matvec_sse(int n, float vec_c[n],
     {
         for(int j=0;j<n;j++)
         {
-            __m128 vector1 = _mm_set_ps(mat_a[i+0][j], mat_a[i+1][j], mat_a[i+2][j], mat_a[i+3][j]);
-            __m128 vector2 = _mm_set_ps(vec_b[j], vec_b[j], vec_b[j], vec_b[j]);
-            __m128 result1 = _mm_mul_ps(vector1, vector2);
-            _mm_store_ps(temp1,result1);
-
-            vec_c[i+0] += temp1[0];
-            vec_c[i+1] += temp1[1];
-            vec_c[i+2] += temp1[2];
-            vec_c[i+3] += temp1[3];
+            for(int k=0;k<n;k++)
+            {
+                mat_c[i][j] += mat_a[i][k] * mat_b[k][j];
+            }
         }
     }
     free(temp1);
 }
 
-// Tests simple matrix vector multiplication, and returns the average time
+// Tests simple matrix matrix multiplication, and returns the average time
 // taken for a given number of iterations
-void test_mat_vec_mul_sse(int n, float vec_c[n],
-                               const float *mat_a[n], const float vec_b[n], int iterations){
+void test_mat_vec_mul_simple(int n, float *mat_c[n],
+                          const float *mat_a[n], const float *mat_b[n], int iterations){
     long long totalTime = 0;
     for(int i=0; i<iterations ;i++)
     {
         struct timeval stop, start;
         gettimeofday(&start, NULL);
-        matvec_sse(n,vec_c,mat_a,vec_b);
+        matvec_simple(n,mat_c,mat_a,mat_b);
         gettimeofday(&stop, NULL);
         totalTime += stop.tv_usec - start.tv_usec;
     }
@@ -49,23 +44,18 @@ void test_mat_vec_mul_sse(int n, float vec_c[n],
     printf("-----------------------------------------\n");
 }
 
-void test_all_mat_vec_mul_sse(){
+void test_all_mat_mul_simple(){
     for(int n=100; n<=1600 ;n*=2)
     {
         srand((unsigned int) n);
-        float *vec_b;
-        float *vec_c;
         float *mat_a[n];
-        // Allocate memory for vectors from heap instead of stack
-        vec_b = malloc(n* sizeof(float));
-        vec_c = malloc(n* sizeof(float));
+        float *mat_b[n];
+        float *mat_c[n];
         // Allocate memory for 2d array from the heap instead of stack
         for(int j=0;j<n;j++){
             mat_a[j] = malloc(n* sizeof(float));
         }
-        for (int j = 0; j<n ; j++) {
 
-        }
         for (int j = 0; j<n ; j++) {
             vec_b[j] = (float)random()/(float)(RAND_MAX);
             for (int k = 0; k <n ; k++) {
