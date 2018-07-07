@@ -30,17 +30,16 @@ void test_mat_mul_simple(int n, float *mat_c[n],
     double totalTime = 0;
     for(int i=0; i<iterations ;i++)
     {
-        struct timespec tstart={0,0}, tend={0,0};
-        clock_gettime(CLOCK_MONOTONIC, &tstart);
+        clock_t start = clock();
         matmul_simple(n,mat_c,mat_a,mat_b);
-        clock_gettime(CLOCK_MONOTONIC, &tend);
-        totalTime += ((double)tend.tv_sec*1000 + tend.tv_nsec/1000) - ((double)tstart.tv_sec*1000 + tstart.tv_nsec/1000);
+        clock_t end = clock();
+        totalTime += (((double)(end-start))/CLOCKS_PER_SEC);
     }
     printf("FN: MAT_MUL_SIMPLE\n");
     printf("MAT_SIZE: [%d],[%d] \n",n,n);
     printf("VEC_SIZE: [%d],[%d] \n",n,n);
     printf("TEST_ITERATIONS: %d \n",iterations);
-    printf("AVG_TIME: %Lf \n",totalTime/(long double)iterations);
+    printf("AVG_TIME: %f \n",totalTime/iterations);
     printf("-----------------------------------------\n");
 }
 
