@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <xmmintrin.h>
 void matvec_sse(int n, float *mat_c[n],
-                          const float *mat_a[n], const float *mat_b[n])
+                const float *mat_a[n], const float *mat_b[n])
 {
     float *temp1;
     temp1 = malloc(4* sizeof(float));
@@ -22,14 +22,14 @@ void matvec_sse(int n, float *mat_c[n],
 
 // Tests simple matrix matrix multiplication, and returns the average time
 // taken for a given number of iterations
-void test_mat_vec_mul_sse(int n, float vec_c[n],
-                               const float *mat_a[n], const float vec_b[n], int iterations){
+void test_mat_vec_mul_sse(int n, float *mat_c[n],
+                          const float *mat_a[n], const float *mat_b[n], int iterations){
     long long totalTime = 0;
     for(int i=0; i<iterations ;i++)
     {
         struct timeval stop, start;
         gettimeofday(&start, NULL);
-        matvec_sse(n,vec_c,mat_a,vec_b);
+        matvec_sse(n,mat_c,mat_a,mat_b);
         gettimeofday(&stop, NULL);
         totalTime += stop.tv_usec - start.tv_usec;
     }
@@ -41,32 +41,29 @@ void test_mat_vec_mul_sse(int n, float vec_c[n],
     printf("-----------------------------------------\n");
 }
 
-void test_all_mat_vec_mul_sse(){
+void test_all_mat_mul_sse(){
     for(int n=100; n<=1600 ;n*=2)
     {
         srand((unsigned int) n);
-        float *vec_b;
-        float *vec_c;
         float *mat_a[n];
-        // Allocate memory for vectors from heap instead of stack
-        vec_b = malloc(n* sizeof(float));
-        vec_c = malloc(n* sizeof(float));
+        float *mat_b[n];
+        float *mat_c[n];
         // Allocate memory for 2d array from the heap instead of stack
         for(int j=0;j<n;j++){
             mat_a[j] = malloc(n* sizeof(float));
+            mat_b[j] = malloc(n* sizeof(float));
+            mat_c[j] = malloc(n* sizeof(float));
         }
-        for (int j = 0; j<n ; j++) {
 
-        }
         for (int j = 0; j<n ; j++) {
-            vec_b[j] = (float)random()/(float)(RAND_MAX);
             for (int k = 0; k <n ; k++) {
                 mat_a[j][k] = (float)random()/(float)(RAND_MAX);
+                mat_b[j][k] = (float)random()/(float)(RAND_MAX);
             }
         }
-        test_mat_vec_mul_sse(n, vec_c, (const float **) mat_a, vec_b, 10);
-        free(vec_b);
-        free(vec_c);
+        test_mat_vec_mul_sse(n, mat_c, mat_a, mat_b, 10);
+        free(mat_b);
+        free(mat_c);
         for(int j=0;j<n;j++){
             free(mat_a[j]);
         }

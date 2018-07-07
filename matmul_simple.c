@@ -8,8 +8,6 @@
 void matvec_simple(int n, float *mat_c[n],
                           const float *mat_a[n], const float *mat_b[n])
 {
-    float *temp1;
-    temp1 = malloc(4* sizeof(float));
     for(int i=0;i<n;i+=4)
     {
         for(int j=0;j<n;j++)
@@ -20,7 +18,6 @@ void matvec_simple(int n, float *mat_c[n],
             }
         }
     }
-    free(temp1);
 }
 
 // Tests simple matrix matrix multiplication, and returns the average time
@@ -54,17 +51,19 @@ void test_all_mat_mul_simple(){
         // Allocate memory for 2d array from the heap instead of stack
         for(int j=0;j<n;j++){
             mat_a[j] = malloc(n* sizeof(float));
+            mat_b[j] = malloc(n* sizeof(float));
+            mat_c[j] = malloc(n* sizeof(float));
         }
 
         for (int j = 0; j<n ; j++) {
-            vec_b[j] = (float)random()/(float)(RAND_MAX);
             for (int k = 0; k <n ; k++) {
                 mat_a[j][k] = (float)random()/(float)(RAND_MAX);
+                mat_b[j][k] = (float)random()/(float)(RAND_MAX);
             }
         }
-        test_mat_vec_mul_sse(n, vec_c, (const float **) mat_a, vec_b, 10);
-        free(vec_b);
-        free(vec_c);
+        test_mat_vec_mul_simple(n, mat_c, (const float **) mat_a, (const float **) mat_b, 10);
+        free(mat_b);
+        free(mat_c);
         for(int j=0;j<n;j++){
             free(mat_a[j]);
         }
