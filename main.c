@@ -5,6 +5,7 @@ int main() {
     test_all_mat_mul_unrolled();
     test_all_mat_vec_mul_sse();
     test_all_mat_mul_simple();
+    test_all_mat_vec_mul_sse();
     return 0;
 }
 

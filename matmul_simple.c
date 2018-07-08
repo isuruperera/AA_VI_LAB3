@@ -5,13 +5,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <xmmintrin.h>
-#include <bits/time.h>
+//#include <bits/time.h>
 #include <time.h>
 
 void matmul_simple(int n, float *mat_c[n],
                           const float *mat_a[n], const float *mat_b[n])
 {
-    for(int i=0;i<n;i+=4)
+    for(int i=0;i<n;i++)
     {
         for(int j=0;j<n;j++)
         {
@@ -59,8 +59,8 @@ void test_all_mat_mul_simple(){
 
         for (int j = 0; j<n ; j++) {
             for (int k = 0; k <n ; k++) {
-                mat_a[j][k] = (float)random()/(float)(RAND_MAX);
-                mat_b[j][k] = (float)random()/(float)(RAND_MAX);
+                mat_a[j][k] = (float)rand()/(float)(RAND_MAX);
+                mat_b[j][k] = (float)rand()/(float)(RAND_MAX);
             }
         }
         test_mat_mul_simple(n, mat_c, (const float **) mat_a, (const float **) mat_b, 10);
