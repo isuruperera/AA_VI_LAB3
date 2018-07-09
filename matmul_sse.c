@@ -1,10 +1,11 @@
 //
 // Created by isurutee on 7/7/18.
 //
-#include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <xmmintrin.h>
+#include <smmintrin.h>
+#include <time.h>
+
 void matmul_sse(int n, float *mat_c[n],
                 const float *mat_a[n], const float *mat_b[n])
 {
@@ -35,20 +36,19 @@ void matmul_sse(int n, float *mat_c[n],
 // taken for a given number of iterations
 void test_mat_mul_sse(int n, float *mat_c[n],
                           const float *mat_a[n], const float *mat_b[n], int iterations){
-    long long totalTime = 0;
+    double totalTime = 0;
     for(int i=0; i<iterations ;i++)
     {
-        struct timeval stop, start;
-        gettimeofday(&start, NULL);
+        clock_t start = clock();
         matmul_sse(n,mat_c,mat_a,mat_b);
-        gettimeofday(&stop, NULL);
-        totalTime += stop.tv_usec - start.tv_usec;
+        clock_t end = clock();
+        totalTime += (((double)(end-start))/CLOCKS_PER_SEC);
     }
-    printf("FN: MAT_VEC_MUL_SSE\n");
-    printf("MAT_SIZE: [%d],[%d] \n",n,n);
-    printf("VEC_SIZE: [%d],[1] \n",n);
+    printf("FN: MAT_MUL_SSE\n");
+    printf("MAT_A_SIZE: [%d],[%d] \n",n,n);
+    printf("MAT_B_SIZE: [%d],[%d] \n",n,n);
     printf("TEST_ITERATIONS: %d \n",iterations);
-    printf("AVG_TIME: %f \n",(double)totalTime/(double)iterations);
+    printf("AVG_TIME: %f \n",totalTime/iterations);
     printf("-----------------------------------------\n");
 }
 
@@ -68,15 +68,15 @@ void test_all_mat_mul_sse(){
 
         for (int j = 0; j<n ; j++) {
             for (int k = 0; k <n ; k++) {
-                mat_a[j][k] = (float)rand()/(float)(RAND_MAX);
-                mat_b[j][k] = (float)rand()/(float)(RAND_MAX);
+                mat_a[j][k] = (float)random()/(float)(RAND_MAX);
+                mat_b[j][k] = (float)random()/(float)(RAND_MAX);
             }
         }
-        test_mat_mul_sse(n, mat_c, mat_a, mat_b, 10);
-        free(mat_b);
-        free(mat_c);
+        test_mat_mul_sse(n, mat_c, (const float **) mat_a, (const float **) mat_b, 10);
         for(int j=0;j<n;j++){
             free(mat_a[j]);
+            free(mat_b[j]);
+            free(mat_c[j]);
         }
     }
 }

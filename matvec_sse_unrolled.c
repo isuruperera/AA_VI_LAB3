@@ -6,43 +6,57 @@
 #include <smmintrin.h>
 #include <time.h>
 
-void matvec_sse(int n, float vec_c[n],
+void matvec_sse_un(int n, float vec_c[n],
                           const float *mat_a[n], const float vec_b[n])
 {
-    float *temp1;
-    temp1 = malloc(4* sizeof(float));
+    float *temp;
+    temp = malloc(4* sizeof(float));
     for(int i=0;i<n;i+=4)
     {
-        for(int j=0;j<n;j++)
+        for(int j=0;j<n;j+=4)
         {
-            __m128 vector1 = _mm_set_ps(mat_a[i+0][j], mat_a[i+1][j], mat_a[i+2][j], mat_a[i+3][j]);
-            __m128 vector2 = _mm_set1_ps(vec_b[j]);
-            __m128 result1 = _mm_mul_ps(vector1, vector2);
-            _mm_store_ps(temp1,result1);
+            __m128 vectorA1 = _mm_set_ps(mat_a[i+0][j+0], mat_a[i+1][j+0], mat_a[i+2][j+0], mat_a[i+3][j+0]);
+            __m128 vectorA2 = _mm_set1_ps(vec_b[j+0]);
+            __m128 resultA1 = _mm_mul_ps(vectorA1, vectorA2);
 
-            vec_c[i+0] += temp1[0];
-            vec_c[i+1] += temp1[1];
-            vec_c[i+2] += temp1[2];
-            vec_c[i+3] += temp1[3];
+            __m128 vectorB1 = _mm_set_ps(mat_a[i+0][j+1], mat_a[i+1][j+1], mat_a[i+2][j+1], mat_a[i+3][j+1]);
+            __m128 vectorB2 = _mm_set1_ps(vec_b[j+1]);
+            __m128 resultB1 = _mm_mul_ps(vectorB1, vectorB2);
+
+            __m128 vectorC1 = _mm_set_ps(mat_a[i+0][j+2], mat_a[i+1][j+2], mat_a[i+2][j+2], mat_a[i+3][j+2]);
+            __m128 vectorC2 = _mm_set1_ps(vec_b[j+2]);
+            __m128 resultC1 = _mm_mul_ps(vectorC1, vectorC2);
+
+            __m128 vectorD1 = _mm_set_ps(mat_a[i+0][j+3], mat_a[i+1][j+3], mat_a[i+2][j+3], mat_a[i+3][j+3]);
+            __m128 vectorD2 = _mm_set1_ps(vec_b[j+3]);
+            __m128 resultD1 = _mm_mul_ps(vectorD1, vectorD2);
+
+            __m128 resultFinal = _mm_add_ps(_mm_add_ps(resultA1,resultB1),_mm_add_ps(resultC1,resultD1));
+            _mm_store_ps(temp,resultFinal);
+
+            vec_c[i+0] += temp[0];
+            vec_c[i+1] += temp[1];
+            vec_c[i+2] += temp[2];
+            vec_c[i+3] += temp[3];
         }
     }
-    free(temp1);
+    free(temp);
 }
 
 // Tests simple matrix vector multiplication, and returns the average time
 // taken for a given number of iterations
-void test_mat_vec_mul_sse(int n, float vec_c[n],
+void test_mat_vec_mul_sse_un(int n, float vec_c[n],
                                const float *mat_a[n], const float vec_b[n], int iterations){
     double totalTime = 0;
     for(int i=0; i<iterations ;i++)
     {
         clock_t start = clock();
-        matvec_sse(n,vec_c,mat_a,vec_b);
+        matvec_sse_un(n,vec_c,mat_a,vec_b);
         clock_t end = clock();
         totalTime += (((double)(end-start))/CLOCKS_PER_SEC);
 
     }
-    printf("FN: MAT_VEC_MUL_SSE\n");
+    printf("FN: MAT_VEC_MUL_SSE_UN\n");
     printf("MAT_SIZE: [%d],[%d] \n",n,n);
     printf("VEC_SIZE: [%d],[1] \n",n);
     printf("TEST_ITERATIONS: %d \n",iterations);
@@ -50,7 +64,7 @@ void test_mat_vec_mul_sse(int n, float vec_c[n],
     printf("-----------------------------------------\n");
 }
 
-void test_all_mat_vec_mul_sse(){
+void test_all_mat_vec_mul_sse_un(){
     for(int n=100; n<=1600 ;n*=2)
     {
         srand((unsigned int) n);
@@ -73,7 +87,7 @@ void test_all_mat_vec_mul_sse(){
                 mat_a[j][k] = (float)random()/(float)(RAND_MAX);
             }
         }
-        test_mat_vec_mul_sse(n, vec_c, (const float **) mat_a, vec_b, 10);
+        test_mat_vec_mul_sse_un(n, vec_c, (const float **) mat_a, vec_b, 10);
         free(vec_b);
         free(vec_c);
         for(int j=0;j<n;j++){

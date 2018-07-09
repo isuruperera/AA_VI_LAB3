@@ -1,10 +1,8 @@
 //
 // Created by isurutee on 7/7/18.
 //
-#include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <bits/time.h>
 #include <time.h>
 
 void matvec_unrolled(int n, float vec_c[n],
